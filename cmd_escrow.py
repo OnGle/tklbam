@@ -88,7 +88,7 @@ def main():
     if keyfile == '-':
         fh = sys.stdout
     else:
-        fh = file(keyfile, "w")
+        fh = open(keyfile, "w")
         os.chmod(keyfile, 0o600)
 
     print(key, file=fh)
