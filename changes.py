@@ -179,7 +179,7 @@ class Changes(list):
         if f == '-':
             fh = sys.stdin
         else:
-            fh = file(f)
+            fh = open(f)
 
         changes = [ Change.parse(line) for line in fh.readlines() ]
         if paths:
@@ -190,7 +190,8 @@ class Changes(list):
         return cls(changes)
 
     def tofile(self, f):
-        file(f, "w").writelines((str(change) + "\n" for change in self))
+        with open(f, 'w') as fob:
+            fob.writelines((str(change) + "\n" for change in self))
 
     def deleted(self, optimized=True):
         for change in self:
