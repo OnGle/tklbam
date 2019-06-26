@@ -16,8 +16,6 @@ import re
 import subprocess
 import shutil
 
-from executil import system, getoutput, getoutput_popen
-
 from dblimits import DBLimits
 
 FNAME_GLOBALS = ".globals.sql"
@@ -26,11 +24,11 @@ FNAME_MANIFEST = "manifest.txt"
 class Error(Exception):
     pass
 
-def su(command):
-    return "su postgres -c" + subprocess.mkarg(command)
+def su(*command):
+    return ['su', 'postgres', '-c', *command]
 
 def list_databases():
-    for line in getoutput(su('psql -l')).splitlines():
+    for line in subprocess.check_output(su('psql', '-l')).splitlines():
         m = re.match(r'^ (\S+?)\s', line)
         if not m:
             continue
@@ -45,22 +43,25 @@ def dumpdb(outdir, name, tlimits=[]):
     os.makedirs(path)
 
     # format pg_dump command
-    pg_dump = "pg_dump --format=tar"
+    pg_dump = ['pg_dump', '--format=tar']
     for (table, sign) in tlimits:
         if sign:
-            pg_dump += " --table=" + table
+            pg_dump.append("--table=" + table)
         else:
-            pg_dump += " --exclude-table=" + table
-    pg_dump += " " + name
+            pg_dump.append("--exclude-table=" + table)
+    pg_dump.append(name)
 
-    manifest = getoutput(su(pg_dump) + " | tar xvC %s" % path)
+    pg_proc = subprocess.Popen(su(*pg_dump), stdout=subprocess.PIPE)
+    tar_proc = subprocess.Popen(['tar', 'xvC', path], stdin=pg_proc.stdout, stdout=subprocess.PIPE)
+    
+    manifest = tar_proc.communicate()[0]
     file(join(path, FNAME_MANIFEST), "w").write(manifest + "\n")
 
 def restoredb(dbdump, dbname, tlimits=[]):
     manifest = file(join(dbdump, FNAME_MANIFEST)).read().splitlines()
 
     try:
-        getoutput(su("dropdb " + dbname))
+        subprocess.check_output(su("dropdb", dbname))
     except:
         pass
 
@@ -74,7 +75,7 @@ def restoredb(dbdump, dbname, tlimits=[]):
             if sign:
                 command += " --table=" + table
         command += " | " + su("cd $HOME; psql")
-        system(command)
+        os.system(command)
         
     finally:
         os.chdir(orig_cwd)
@@ -91,7 +92,7 @@ def pgsql2fs(outdir, limits=[], callback=None):
 
         dumpdb(outdir, dbname, limits[dbname])
 
-    globals = getoutput(su("pg_dumpall --globals"))
+    globals = subprocess.check_output(su('pg_dumpall', '--globals'))
     file(join(outdir, FNAME_GLOBALS), "w").write(globals)
 
 def fs2pgsql(outdir, limits=[], callback=None):
@@ -102,7 +103,8 @@ def fs2pgsql(outdir, limits=[], callback=None):
 
     # load globals first, suppress noise (e.g., "ERROR: role "postgres" already exists)
     globals = file(join(outdir, FNAME_GLOBALS)).read()
-    getoutput_popen(su("psql -q -o /dev/null"), globals)
+    proc = Popen(su('psql', '-q', '-o', '/dev/null'), stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    proc.communicate(globals)
 
     for dbname in os.listdir(outdir):
 
@@ -150,7 +152,7 @@ class PgsqlService:
     @classmethod
     def is_running(cls):
         try:
-            getoutput(cls.INIT_SCRIPT, "status")
+            subprocess.check_output([cls.INIT_SCRIPT, "status"])
             return True
         except:
             return False
