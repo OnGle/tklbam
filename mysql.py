@@ -21,10 +21,10 @@ from paths import Paths as _Paths
 
 import shutil
 from string import Template
+import subprocess
 from subprocess import Popen, PIPE
 
 from dblimits import DBLimits
-import executil
 
 import stat
 from command import Command
@@ -626,9 +626,9 @@ class MysqlService:
     @classmethod
     def is_running(cls):
         try:
-            executil.getoutput('mysqladmin -s ping')
+            subprocess.check_output(['mysqladmin', '-s', 'ping'])
             return True
-        except executil.ExecError:
+        except subprocess.CalledProcessError:
             return False
 
     @classmethod
@@ -639,9 +639,9 @@ class MysqlService:
         retries = 2
         for i in range(retries):
             try:
-                executil.getoutput(cls.INIT_SCRIPT, "start")
+                subprocess.check_output([cls.INIT_SCRIPT, "start"])
                 return
-            except executil.ExecError as e:
+            except subprocess.CalledProcessError as e:
                 pass
 
         raise e
@@ -673,10 +673,10 @@ class MysqlService:
     @classmethod
     def is_accessible(cls):
         try:
-            executil.getoutput_popen("mysql --defaults-file=/etc/mysql/debian.cnf", "select 1")
+            subprocess.check_output(['mysql', '--defaults-file=/etc/mysql/debian.cnf', 'select 1'])
             return True
 
-        except executil.ExecError:
+        except subprocess.CalledProcessError:
             return False
 
 class MysqlNoAuth:
