@@ -27,10 +27,10 @@ from pkgman import Installer
 
 def usage(e=None):
     if e:
-        print >> sys.stderr, "error: " + str(e)
+        print("error: " + str(e), file=sys.stderr)
 
-    print >> sys.stderr, "Syntax: %s [ -options ] [ package-name ... ]" % sys.argv[0]
-    print >> sys.stderr, __doc__.strip()
+    print("Syntax: %s [ -options ] [ package-name ... ]" % sys.argv[0], file=sys.stderr)
+    print(__doc__.strip(), file=sys.stderr)
     sys.exit(1)
 
 def parse_input(inputfile):
@@ -54,7 +54,7 @@ def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'i:svh', 
                                        ['input=', 'simulate', 'verbose'])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         usage(e)
 
     opt_input = None
@@ -87,15 +87,15 @@ def main():
 
     if opt_verbose:
         if installer.skipping:
-            print "# SKIPPING: " + " ".join(installer.skipping)
+            print("# SKIPPING: " + " ".join(installer.skipping))
 
         if installer.command:
-            print installer.command
+            print(installer.command)
 
     if not opt_simulate:
         errno, output = installer(interactive=False)
         if opt_verbose:
-            print output
+            print(output)
         os.exit(errno)
 
 if __name__=="__main__":
