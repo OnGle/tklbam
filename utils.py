@@ -11,7 +11,8 @@
 import os
 from os.path import *
 
-import executil
+import shutil
+import subprocess
 import shutil
 import stat
 import datetime
@@ -68,8 +69,9 @@ def move(src, dst):
 def apply_overlay(src, dst, olist_path):
     orig_cwd = os.getcwd()
     os.chdir(src)
-    executil.getoutput("tar --create --files-from=%s | tar --extract --directory %s" %
-                       (olist_path, executil.mkarg(dst)))
+    
+    subprocess.check_output("tar --create --files-from=%s | tar --extract --directory %s" %
+                       (olist_path, shutil.quote(dst)))
 
     os.chdir(orig_cwd)
 

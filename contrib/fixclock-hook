@@ -3,7 +3,7 @@
 
 import os
 import sys
-import executil
+import subprocess
 from string import Template
 
 NTPSERVER = os.environ.get("NTPSERVER", "pool.ntp.org")
@@ -35,12 +35,12 @@ def fixclock():
     command = "ntpdate -u " + NTPSERVER
 
     try:
-        executil.getoutput(command)
-    except executil.ExecError, e:
+        subprocess.check_output(command)
+    except subprocess.CalledProcessError, e:
         msg = Template(ERROR_TPL).substitute(COMMAND=command,
                                              ERROR=e.output)
 
-        print >> sys.stderr, msg,
+        print(msg, file=sys.stderr)
         sys.exit(1)
 
 def main():
