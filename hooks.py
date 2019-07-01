@@ -18,7 +18,7 @@ def _is_signed(fpath, keyring):
     try:
         check_output("gpg --keyring=%s --verify" % keyring, fpath_sig)
         return True
-    except CalledProcessError::
+    except CalledProcessError:
         return False
 
 def _run_hooks(path, args, keyring=None):
