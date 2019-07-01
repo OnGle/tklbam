@@ -83,7 +83,7 @@ class Base(OrderedDict):
 
     def __str__(self):
         ents = list(self.values())
-        ents.sort(lambda a,b: cmp(a.id, b.id))
+        ents.sort(lambda a: a.id)
 
         return "\n".join([ ':'.join(ent) for ent in ents ]) + "\n"
 
