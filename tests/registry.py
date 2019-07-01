@@ -16,10 +16,12 @@ class _Registry(object):
             if not exists(path):
                 return None
 
-            return file(path).read().rstrip()
+            with open(path, 'r') as fob:
+                return fob.read().rstrip()
 
         else:
-            file(path, "w").write("%s\n" % val)
+            with open(path, 'w') as fob:
+                fob.write("%s\n" % val)
     foo = property(foo, foo)
 
 registry = _Registry()

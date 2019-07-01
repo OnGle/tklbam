@@ -37,7 +37,7 @@ PATH_DEBIAN_CNF = "/etc/mysql/debian.cnf"
 def _mysql_opts(opts=[], defaults_file=None, **conf):
     def isreadable(path):
         try:
-            file(path)
+            open(path)
             return True
         except:
             return False
@@ -126,16 +126,19 @@ class MyFS_Writer(MyFS):
             if not exists(self.paths):
                 os.mkdir(self.paths)
 
-            print(sql, file=file(self.paths.init, "w"))
+            with open(self.paths.init, 'w') as fob:
+                fob.write(sql+'\n')
             self.name = name
 
         def add_view_pre(self, name, sql):
             view = self.View(self.paths.views, name)
-            print(sql, file=file(view.paths.pre, "w"))
+            with open(view.paths.pre, 'w') as fob:
+                fob.write(sql+'\n')
 
         def add_view_post(self, name, sql):
             view = self.View(self.paths.views, name)
-            print(sql, file=file(view.paths.post, "w"))
+            with open(view.paths.post, 'w') as fob:
+                fob.write(sql+'\n')
 
     class Table(MyFS.Table):
         def __init__(self, database, name, sql):
@@ -143,11 +146,12 @@ class MyFS_Writer(MyFS):
             if not exists(self.paths):
                 os.makedirs(self.paths)
 
-            print(sql, file=file(self.paths.init, "w"))
+            with open(self.paths.init, 'w') as fob:
+                fob.write(sql+'\n')
             if exists(self.paths.triggers):
                 os.remove(self.paths.triggers)
 
-            self.rows_fh = file(self.paths.rows, "w")
+            self.rows_fh = open(self.paths.rows, "w")
             self.name = name
             self.database = database
 
@@ -155,7 +159,8 @@ class MyFS_Writer(MyFS):
             print(re.sub(r'.*?VALUES \((.*)\);', '\\1', sql), file=self.rows_fh)
 
         def add_trigger(self, sql):
-            print(sql + "\n", file=file(self.paths.triggers, "a"))
+            with open(self.paths.triggers, 'a') as fob:
+                fob.write(sql + '\n')
 
     def __init__(self, outdir, limits=[]):
         self.limits = DBLimits(limits)
@@ -291,20 +296,23 @@ $sql
             def pre(self):
                 if not exists(self.paths.pre):
                     return
-                sql = file(self.paths.pre).read().strip()
+                with open(self.paths.pre, 'r') as fob:
+                    sql = fob.read().strip()
                 return Template(self.TPL_PRE).substitute(name=self.name, sql=sql)
             pre = property(pre)
 
             def post(self):
                 if not exists(self.paths.post):
                     return
-                sql = file(self.paths.post).read().strip()
+                with open(self.paths.post, 'r') as fob:
+                    sql = fob.read().strip()
                 return Template(self.TPL_POST).substitute(name=self.name, sql=sql)
             post = property(post)
             
         def __init__(self, myfs, fname):
             self.paths = self.Paths(join(myfs.path, fname))
-            self.sql_init = file(self.paths.init).read()
+            with open(self.paths.init, 'r') as fob:
+                self.sql_init = fob.read()
             self.name = _match_name(self.sql_init)
             self.myfs = myfs
 
@@ -391,7 +399,8 @@ DELIMITER ;
 
         def __init__(self, database, fname):
             self.paths = self.Paths(join(database.paths.tables, fname))
-            self.sql_init = file(self.paths.init).read()
+            with open(self.paths.init, 'r') as fob:
+                self.sql_init = fob.read()
             self.name = _match_name(self.sql_init)
             self.database = database
 
@@ -399,8 +408,9 @@ DELIMITER ;
             return "Table(%s)" % repr(self.paths.path)
 
         def rows(self):
-            for line in file(self.paths.rows):
-                yield line.strip()
+            with open(self.paths.rows, 'r') as fob:
+                for line in fob:
+                    yield line.strip()
 
         def has_rows(self):
             if exists(self.paths.rows) and os.lstat(self.paths.rows).st_size != 0:
@@ -413,7 +423,8 @@ DELIMITER ;
             if not exists(self.paths.triggers):
                 return []
 
-            return list(_parse_statements(file(self.paths.triggers), ';;'))
+            with open(self.paths.triggers, 'r') as fob:
+                return list(_parse_statements(fob, ';;'))
         triggers = property(triggers)
 
         def tofile(self, fh):
@@ -577,7 +588,7 @@ def restore(myfs, etc, **kws):
 
     mna = None
     if simulate:
-        mysql_fh = file("/dev/null", "w")
+        mysql_fh = open("/dev/null", "w")
     else:
         if not MysqlService.is_running():
             raise Error("MySQL service not running")
@@ -619,7 +630,8 @@ class MysqlService:
         if not exists(cls.PID_FILE):
             return
 
-        pid = int(file(cls.PID_FILE).read().strip())
+        with open(cls.PID_FILE, 'r') as fob:
+            pid = int(fob.read().strip())
         if cls._pid_exists(pid):
             return pid
 

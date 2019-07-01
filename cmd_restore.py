@@ -342,7 +342,8 @@ def main():
             if not isfile(val):
                 fatal("keyfile %s does not exist or is not a file" % repr(val))
 
-            opt_key = file(val).read()
+            with open(val, 'r') as fob:
+                opt_key = fob.read()
             try:
                 keypacket.fingerprint(opt_key)
             except keypacket.Error:
@@ -472,7 +473,7 @@ def main():
     update_profile(conf.force_profile, strict=False)
 
     if not (opt_simulate or opt_debug):
-        log_fh = file(opt_logfile, "a")
+        log_fh = open(opt_logfile, "a")
 
         print(file=log_fh)
         print("\n" + fmt_timestamp(), file=log_fh)

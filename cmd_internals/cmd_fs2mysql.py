@@ -86,7 +86,7 @@ def main():
         if opt_tofile == '-':
             fh = sys.stdout
         else:
-            fh = file(opt_tofile, "w")
+            fh = open(opt_tofile, "w")
     else:
         fh = mysql.mysql(**myconf)
 

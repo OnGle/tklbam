@@ -17,11 +17,13 @@ class Session:
 
     @classmethod 
     def load(cls):
-        return simplejson.loads(file(cls.SESSION_FILE).read())
+        with open(cls.SESSION_FILE, 'r') as fob:
+            return simplejson.loads(fob.read())
 
     @classmethod 
     def save(cls, conf):
-        file(cls.SESSION_FILE, "w").write(simplejson.dumps(conf))
+        with open(cls.SESSION_FILE, 'w') as fob:
+            fob.write(simplejson.dumps(conf))
 
     @classmethod 
     def remove(cls):

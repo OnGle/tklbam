@@ -55,10 +55,12 @@ def dumpdb(outdir, name, tlimits=[]):
     tar_proc = subprocess.Popen(['tar', 'xvC', path], stdin=pg_proc.stdout, stdout=subprocess.PIPE)
     
     manifest = tar_proc.communicate()[0]
-    file(join(path, FNAME_MANIFEST), "w").write(manifest + "\n")
+    with open(join(path, FNAME_MANIFEST), 'w') as fob:
+        fob.write(manifest + '\n')
 
 def restoredb(dbdump, dbname, tlimits=[]):
-    manifest = file(join(dbdump, FNAME_MANIFEST)).read().splitlines()
+    with open(join(dbdump, FNAME_MANIFEST)) as fob:
+        manifest = fob.read().splitlines()
 
     try:
         subprocess.check_output(su("dropdb", dbname))
@@ -93,7 +95,8 @@ def pgsql2fs(outdir, limits=[], callback=None):
         dumpdb(outdir, dbname, limits[dbname])
 
     globals = subprocess.check_output(su('pg_dumpall', '--globals'))
-    file(join(outdir, FNAME_GLOBALS), "w").write(globals)
+    with open(join(outdir, FNAME_GLOBALS), 'w') as fob:
+        fob.write(globals)
 
 def fs2pgsql(outdir, limits=[], callback=None):
     limits = DBLimits(limits)
@@ -102,7 +105,8 @@ def fs2pgsql(outdir, limits=[], callback=None):
             raise Error("can't exclude %s/%s: table excludes not supported for postgres" % (database, table))
 
     # load globals first, suppress noise (e.g., "ERROR: role "postgres" already exists)
-    globals = file(join(outdir, FNAME_GLOBALS)).read()
+    with open(join(outdir, FNAME_GLOBALS)) as fob:
+        globals = fob.read()
     proc = Popen(su('psql', '-q', '-o', '/dev/null'), stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     proc.communicate(globals)
 

@@ -23,12 +23,13 @@ def installed():
 
     def parse_status(path):
         control = ""
-        for line in file(path).readlines():
-            if not line.strip():
-                yield control
-                control = ""
-            else:
-                control += line
+        with open(path, 'r') as fob:
+            for line in fob:
+                if not line.strip():
+                    yield control
+                    control = ""
+                else:
+                    control += line
 
         if control.strip():
             yield control
@@ -47,17 +48,17 @@ def installed():
 class Packages(set):
     @classmethod
     def fromfile(cls, path):
-        packages = file(path).read().strip().split('\n')
+        with open(path, 'r') as fob:
+            packages = fob.read().strip().split('\n')
         return cls(packages)
 
     def tofile(self, path):
         packages = list(self)
         packages.sort()
 
-        fh = file(path, "w")
-        for package in packages:
-            print(package, file=fh)
-        fh.close()
+        with open(path, 'w') as fob:
+            for package in packages:
+                fob.write(package+'\n')
 
     def __init__(self, packages=None):
         """If <packages> is None we get list of packages from the package
