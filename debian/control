@@ -19,7 +19,7 @@ Depends:
  ntpdate,
  pycurl-wrapper (>= 1.2),
  ${python3:Depends},
- python-crypto,
+ python3-crypto,
  python-simplejson,
  turnkey-paged,
  turnkey-command,
@@ -30,5 +30,4 @@ Depends:
  tklbam-duplicity (>=  0.6.18),
  tklbam-python-boto (>= 2.3.0-2turnkey),
  tklbam-squid (>= 2.7.STABLE9-2.1turnkey+25),
- turnkey-pylib (>= 0.5),
 Description: TurnKey GNU/Linux Backup and Migration agent
