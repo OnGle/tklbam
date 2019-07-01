@@ -37,7 +37,7 @@ def _run_hooks(path, args, keyring=None):
             continue
 
         try:
-            subprocess.run(fpath, *args)
+            subprocess.run([fpath, *args])
         except CalledProcessError as e:
             raise HookError("`%s %s` non-zero exitcode (%d)" % \
                             (fpath, " ".join(args), e.returncode))

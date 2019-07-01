@@ -41,6 +41,7 @@ def _repeat(f, input, count):
     return input
 
 def _cipher_key(passphrase, repeats):
+    passphrase = passphrase.encode('latin-1')
     cipher_key = _repeat(lambda k: hashlib.sha256(k).digest(),
                          passphrase, repeats)
     return cipher_key

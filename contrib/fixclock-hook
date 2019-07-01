@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # hook that runs ntpdate before duplicity to sync clock to UTC
 
 import os
@@ -32,11 +32,11 @@ $ERROR
 def fixclock():
     os.environ['PATH'] += ':/usr/sbin'
 
-    command = "ntpdate -u " + NTPSERVER
+    command = ["ntpdate", "-u", NTPSERVER]
 
     try:
         subprocess.check_output(command)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         msg = Template(ERROR_TPL).substitute(COMMAND=command,
                                              ERROR=e.output)
 
