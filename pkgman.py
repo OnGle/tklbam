@@ -23,7 +23,7 @@ def installed():
 
     def parse_status(path):
         control = ""
-        with open(path, 'r') as fob:
+        with open(path, 'r', encoding='utf-8') as fob:
             for line in fob:
                 if not line.strip():
                     yield control
