@@ -36,11 +36,10 @@ def main():
 
     passwd, group, uidmap, gidmap = userdb.merge(r(old_passwd), r(old_group),
                                                  r(new_passwd), r(new_group))
-
-    with open(merged_password, 'w') as fob:
-        fob.write(passwd+'\n')
+    with open(merged_passwd, 'w') as fob:
+        fob.write(str(passwd)+'\n')
     with open(merged_group, 'w') as fob:
-        fob.write(group+'\n')
+        fob.write(str(group)+'\n')
 
     def fmt_map(m):
          return ":".join([ "%d,%d" % (key, val) for key,val in list(m.items()) ])
