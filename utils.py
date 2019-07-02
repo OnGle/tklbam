@@ -11,9 +11,9 @@
 import os
 from os.path import *
 
+import shlex
 import shutil
 import subprocess
-import shutil
 import stat
 import datetime
 
@@ -71,7 +71,7 @@ def apply_overlay(src, dst, olist_path):
     os.chdir(src)
     
     subprocess.check_output("tar --create --files-from=%s | tar --extract --directory %s" %
-                       (olist_path, shutil.quote(dst)))
+                       (olist_path, shlex.quote(dst)))
 
     os.chdir(orig_cwd)
 

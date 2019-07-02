@@ -642,6 +642,8 @@ class MysqlService:
             return True
         except subprocess.CalledProcessError:
             return False
+        except FileNotFoundError:
+            return False
 
     @classmethod
     def start(cls):
