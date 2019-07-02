@@ -40,7 +40,7 @@ class DirIndex(dict):
             rec = cls(path,
                       st.st_mode,
                       st.st_uid, st.st_gid,
-                      st.st_size, st.st_mtime,
+                      st.st_size, int(st.st_mtime), # truncating this *should* be safe
                       symlink)
             return rec
 
