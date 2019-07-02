@@ -480,9 +480,16 @@ def main():
 
         log_fh.flush()
 
-        trap = UnitedStdTrap(usepty=True, transparent=(False if silent else True), tee=log_fh)
+        #trap = UnitedStdTrap(usepty=True, transparent=(False if silent else True), tee=log_fh)
+        global real_stdout, real_stderr, trap
+        trap = True
+        real_stdout = sys.stdout
+        real_stderr = sys.stderr
+        sys.stdout = log_fh
+        sys.stderr = log_fh
+
     else:
-        trap = None
+        trap = False 
 
     try:
         hooks.restore.pre()
@@ -543,7 +550,8 @@ def main():
             sys.stdout.flush()
             sys.stderr.flush()
 
-            trap.close()
+            sys.stdout = real_stdout
+            sys.stderr = real_stderr
             log_fh.close()
 
     if not silent:
