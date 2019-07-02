@@ -69,10 +69,12 @@ def move(src, dst):
 def apply_overlay(src, dst, olist_path):
     orig_cwd = os.getcwd()
     os.chdir(src)
-    
-    subprocess.check_output("tar --create --files-from=%s | tar --extract --directory %s" %
-                       (olist_path, shlex.quote(dst)))
 
+    proc1 = subprocess.Popen(['tar', '--create', '--files-from=%s' % olist_path], stdout=subprocess.PIPE)
+    proc2 = subprocess.Popen(['tar', '--extract', '--directory', shlex.quote(dst)], stdin=proc1.stdout, stdout=subprocess.PIPE)
+    proc1.stdout.close()
+    proc2.communicate()
+    
     os.chdir(orig_cwd)
 
 def fmt_title(title, c='='):
