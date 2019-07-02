@@ -12,6 +12,7 @@ class Error(Exception):
     pass
 
 from collections import OrderedDict
+from functools import cmp_to_key
 
 class Base(OrderedDict):
     class Ent(list):
@@ -83,7 +84,7 @@ class Base(OrderedDict):
 
     def __str__(self):
         ents = list(self.values())
-        ents.sort(lambda a: a.id)
+        ents.sort(key=lambda a: a.id)
 
         return "\n".join([ ':'.join(ent) for ent in ents ]) + "\n"
 
@@ -208,7 +209,7 @@ class Base(OrderedDict):
 
             return cmp(b_is_common, a_is_common)
 
-        aliased.sort(aliased_sort)
+        aliased.sort(key=cmp_to_key(aliased_sort))
 
         def get_merged_alias_id(name):
 
