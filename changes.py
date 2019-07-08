@@ -187,6 +187,9 @@ class Changes(list):
             changes = [ change for change in changes
                         if change.path in pathmap ]
 
+        if f != '-':
+            fh.close()
+
         return cls(changes)
 
     def tofile(self, f):
