@@ -162,7 +162,7 @@ class Changes(list):
                 return "chown -h %s:%s %s" % (fmt_uid(uid), fmt_gid(gid), path)
             elif func is os.chmod:
                 path, mode = args
-                return "chmod %s %s" % (oct(mode), path)
+                return "chmod %s %s" % (oct(mode)[2:], path)
             elif func is os.remove:
                 path, = args
                 return "rm " + path
