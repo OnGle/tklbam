@@ -22,12 +22,12 @@ def installed():
     """Return list of installed packages"""
 
     def parse_status(path):
-        control = ""
-        with open(path, 'r', encoding='utf-8') as fob:
+        control = b""
+        with open(path, 'rb') as fob:
             for line in fob:
                 if not line.strip():
                     yield control
-                    control = ""
+                    control = b""
                 else:
                     control += line
 
@@ -36,20 +36,20 @@ def installed():
 
     packages = []
     for control in parse_status("/var/lib/dpkg/status"):
-        d = dict([ re.split(':\s*', line, 1)
-                   for line in control.split('\n')
-                   if line and (':' in line) and (line[0] != ' ') ])
+        d = dict([ re.split(b':\s*', line, 1)
+                   for line in control.split(b'\n')
+                   if line and (b':' in line) and (line[0] != b' ') ])
 
-        if "ok installed" in d['Status']:
-            packages.append(d['Package'])
+        if b"ok installed" in d[b'Status']:
+            packages.append(d[b'Package'])
 
     return packages
 
 class Packages(set):
     @classmethod
     def fromfile(cls, path):
-        with open(path, 'r') as fob:
-            packages = fob.read().strip().split('\n')
+        with open(path, 'rb') as fob:
+            packages = fob.read().strip().split(b'\n')
         return cls(packages)
 
     def tofile(self, path):
@@ -73,17 +73,24 @@ class AptCache(set):
     Error = Error
 
     def __init__(self, packages):
-        command = "apt-cache show " + " ".join(packages)
-        status, output = subprocess.getstatusoutput(command)
+        command = [b"apt-cache", b"show", *packages]
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            output, _ = proc.communicate()
+            status = proc.returncode
+        except subprocess.CalledProcessError as e:
+            output = ''
+            status = e.returncode
+        
         status = os.WEXITSTATUS(status)
         if status not in (0, 100):
             raise self.Error("execution failed (%d): %s\n%s" % (status, command, output))
 
         cached = [ line.split()[1]
-                   for line in output.split("\n") if
-                   line.startswith("Package: ") ]
+                   for line in output.split(b"\n") if
+                   line.startswith(b"Package: ") ]
 
-        set.__init__(self, cached)
+        super().__init__(cached)
 
 class Blacklist:
     def __init__(self, patterns):
@@ -140,7 +147,7 @@ class Installer:
         self.skipping.sort()
 
         if self.installable:
-            self.command = "apt-get install --assume-yes " + " ".join(self.installable)
+            self.command = [b"apt-get", b"install", b"--assume-yes", *self.installable]
         else:
             self.command = None
 
@@ -152,13 +159,13 @@ class Installer:
 
         command = self.command
         if not interactive:
-            command = "DEBIAN_FRONTEND=noninteractive " + command
+            command = ["DEBIAN_FRONTEND=noninteractive", *command]
 
         sys.stdout.flush()
         sys.stderr.flush()
 
         packages_before = Packages()
-        retval = os.system(command)
+        retval = subprocess.run(command).returncode
         packages_after = Packages()
 
         self.installed = packages_after - packages_before
