@@ -162,6 +162,9 @@ class MyFS_Writer(MyFS):
             with open(self.paths.triggers, 'a') as fob:
                 fob.write(sql + '\n')
 
+        def close(self):
+            self.rows_fh.close()
+
     def __init__(self, outdir, limits=[]):
         self.limits = DBLimits(limits)
         self.outdir = outdir
@@ -191,6 +194,8 @@ class MyFS_Writer(MyFS):
                 if not database:
                     continue
 
+                if table:
+                    table.close()
                 table = None
 
             if not database:
@@ -208,6 +213,8 @@ class MyFS_Writer(MyFS):
             elif statement.startswith("CREATE TABLE"):
                 table_name = _match_name(statement)
 
+                if table:
+                    table.close()
                 table = self.Table(database, table_name, statement)
                 if (database.name, table_name) in self.limits:
                     if callback:
@@ -226,6 +233,9 @@ class MyFS_Writer(MyFS):
             elif not table_ignore_inserts and statement.startswith("INSERT INTO"):
                 assert _match_name(statement) == table.name
                 table.add_row(statement)
+
+        if table:
+            table.close()
 
 def mysql2fs(fh, outdir, limits=[], callback=None):
     MyFS_Writer(outdir, limits).fromfile(fh, callback)
