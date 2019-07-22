@@ -27,6 +27,7 @@ Depends:
  turnkey-pidlock,
  turnkey-stdtrap,
  turnkey-temp,
+ turnkey-paths,
  tklbam-duplicity (>=  0.6.18),
  tklbam-python-boto (>= 2.3.0-2turnkey),
  tklbam-squid (>= 2.7.STABLE9-2.1turnkey+25),
