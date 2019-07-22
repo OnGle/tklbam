@@ -84,12 +84,15 @@ import base64
 import struct
 import hashlib
 import getopt
+import binascii
 
 def is_valid_apikey(apikey):
     padded = "A" * (20 - len(apikey)) + apikey
     try:
         struct.unpack("!L8s", base64.b32decode(padded + "=" * 4))
     except TypeError:
+        return False
+    except binascii.Error:
         return False
 
     return True
