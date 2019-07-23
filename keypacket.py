@@ -50,6 +50,7 @@ def _cipher(cipher_key):
     return AES.new(cipher_key, mode=AES.MODE_CBC, IV='\0' * 16)
 
 def fmt(secret, passphrase):
+    secret = secret.encode('latin-1')
     salt = os.urandom(SALT_LEN)
 
     if not passphrase:
@@ -66,10 +67,10 @@ def fmt(secret, passphrase):
 
     fingerprint = hashlib.sha1(secret).digest()[:FINGERPRINT_LEN]
     packet = struct.pack("!BHH", KEY_VERSION,
-                         hash_repeats / 1000,
-                         cipher_repeats / 1000) + fingerprint + ciphertext
+                         hash_repeats // 1000,
+                         cipher_repeats // 1000) + fingerprint + ciphertext
 
-    return base64.b64encode(packet)
+    return base64.b64encode(packet).decode('latin-1')
 
 def _parse(packet):
     try:
