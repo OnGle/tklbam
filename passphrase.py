@@ -19,7 +19,7 @@ def random_passphrase():
     for i in range(4):
         parts.append(random[i * 4:(i+1) * 4])
 
-    return "-".join(parts)
+    return (b"-".join(parts)).decode('latin-1')
 
 class Error(Exception):
     pass
