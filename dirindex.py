@@ -96,6 +96,7 @@ class DirIndex(dict):
                     rec = DirIndex.Record.fromline(line)
                 except Error:
                     if os.getenv('TKLBAM_SKIP_BAD_INDEX_RECORD', ''):
+                        print "warning: skipping bad index record: " + repr(line)
                         continue
                     else:
                         raise
