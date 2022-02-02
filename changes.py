@@ -16,6 +16,7 @@ import types
 
 from dirindex import DirIndex
 from pathmap import PathMap
+import json
 
 import stat
 import errno
@@ -70,14 +71,20 @@ class Change:
         stat = property(stat)
 
         def fmt(self, *args):
-            return "\t".join([self.OP, self.path] + map(str, args))
+            if DirIndex._version == 1:
+                return "\t".join([self.OP, self.path] + map(str, args))
+            else:
+                return json.dumps([self.OP, self.path] + map(str, args))
 
         def __str__(self):
             return self.fmt()
 
         @classmethod
         def fromline(cls, line):
-            args = line.rstrip().split('\t')
+            try:
+                args = json.loads(line)
+            except ValueError:
+                args = line.rstrip().split('\t')
             return cls(*args)
 
     class Deleted(Base):
