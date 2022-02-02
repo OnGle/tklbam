@@ -12,7 +12,7 @@ import re
 import os
 import stat
 from os.path import *
-
+import dirindex_ext
 from pathmap import PathMap
 
 class Error(Exception):
@@ -71,6 +71,8 @@ class DirIndex(dict):
             return "DirIndex.Record(%s, mod=%s, uid=%d, gid=%d, size=%d, mtime=%d)" % \
                     (`self.path`, oct(self.mod), self.uid, self.gid, self.size, self.mtime)
 
+    _version = 1
+
     @classmethod
     def create(cls, path_index, paths):
         """create index from paths"""
@@ -80,14 +82,17 @@ class DirIndex(dict):
 
         return di
 
-    def __init__(self, fromfile=None):
+    def __init__(self, fromfile=None, check_version=True):
         if fromfile:
-            for line in file(fromfile).readlines():
-                if not line.strip():
-                    continue
+            if check_version:
+                dirindex_ext.read_dirindex(fromfile, self.__class__)
+            else:
+                for line in file(fromfile).readlines():
+                    if not line.strip():
+                        continue
 
-                rec = DirIndex.Record.fromline(line)
-                self[rec.path] = rec
+                    rec = DirIndex.Record.fromline(line)
+                    self[rec.path] = rec
 
     def add_path(self, path):
         """add a single path to the DirIndex"""
@@ -136,12 +141,15 @@ class DirIndex(dict):
             if not path in pathmap:
                 del self[path]
 
-    def save(self, tofile):
+    def save_v1(self, tofile):
         fh = file(tofile, "w")
         paths = self.keys()
         paths.sort()
         for path in paths:
             print >> fh, self[path].fmt()
+
+    def save(self, tofile):
+        dirindex_ext.write_dirindex(tofile, self, DirIndex._version)
 
     def diff(self, other):
         a = set(self)

@@ -103,6 +103,10 @@ class Conf(AttrDict):
         # sanity checking / parsing values reach us whenver someone
         # (including a method in this instance) sets an instance member
 
+        if name == 'dirindex_format':
+            if not val in ('1', '2'):
+                raise self.Error("invalid dirindex-format (%s)" % val)
+
         if name == 'full_backup':
             if not re.match(r'^now$|^\d+[mhDWMY]', val):
                 raise self.Error("bad full-backup value (%s)" % val)
@@ -163,6 +167,8 @@ class Conf(AttrDict):
         self.backup_skip_database = False
         self.backup_skip_packages = False
 
+        self.dirindex_format = 1
+
         if not exists(self.paths.conf):
             return
 
@@ -179,7 +185,9 @@ class Conf(AttrDict):
             try:
                 if opt in ('full-backup', 'volsize', 's3-parallel-uploads',
                            'restore-cache-size', 'restore-cache-dir',
-                           'backup-skip-files', 'backup-skip-packages', 'backup-skip-database', 'force-profile'):
+                           'backup-skip-files', 'backup-skip-packages',
+                           'backup-skip-database', 'force-profile',
+                           'dirindex-format'):
 
                     attrname = opt.replace('-', '_')
                     setattr(self, attrname, val)
@@ -189,4 +197,7 @@ class Conf(AttrDict):
 
             except self.Error, e:
                 raise self._error(e)
+        
+        import dirindex
+        dirindex.DirIndex._version = self.dirindex_format
 

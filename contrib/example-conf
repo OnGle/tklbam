@@ -49,3 +49,17 @@ backup-skip-database    False
 restore-cache-size 50%
 restore-cache-dir /var/cache/tklbam/restore
 
+# dirindex-format: the format to save new dirindex's in
+#
+#  1 - the old text format, used for a long time this format is stable, but ambigious
+#      and some special characters are not treated properly.
+#
+#  2 - a more precise, unambigious binary format that handles all special
+#      characters properly
+#
+# This will be set to `2` after a new full backup with the latest tklbam (to
+# avoid any potentially undefined behaviour trying to convert the old format to
+# the new format, it's highly recommended you do not change this setting
+# yourself) 
+#
+dirindex-format 1
