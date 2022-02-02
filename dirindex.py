@@ -48,7 +48,13 @@ class DirIndex(dict):
         def fromline(cls, line):
             vals = line.strip().split('\t')
             if len(vals) not in (6, 7):
-                raise Error("bad index record: " + line)
+                raise Error(
+                    "bad index record: " + repr(line) +
+                    '\nre-run with `TKLBAM_SKIP_BAD_INDEX_RECORD=y` to skip'
+                    ' this index record however doing so, will make the'
+                    ' relevant index\'d file unrecoverable (although given the'
+                    ' index is corrupted, this is likely already the case)'
+                )
 
             path = vals[0]
             del vals[0]
@@ -86,7 +92,14 @@ class DirIndex(dict):
                 if not line.strip():
                     continue
 
-                rec = DirIndex.Record.fromline(line)
+                try:
+                    rec = DirIndex.Record.fromline(line)
+                except Error:
+                    if os.getenv('TKLBAM_SKIP_BAD_INDEX_RECORD', ''):
+                        continue
+                    else:
+                        raise
+
                 self[rec.path] = rec
 
     def add_path(self, path):
