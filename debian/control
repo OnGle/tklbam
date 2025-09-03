@@ -5,10 +5,11 @@ Maintainer: Liraz Siri <liraz@turnkeylinux.org>
 Build-Depends:
  debhelper (>= 10),
  dh-exec,
- dh-python2 (>= 4.20201102+turnkey0),
- python-all (>= 2.6.6-3~),
+ libcurl4-openssl-dev,
+ wget,
+ tar,
+ libssl-dev
 Standards-Version: 4.0.0
-X-Python-Version: >= 2.6
 
 Package: tklbam
 Architecture: all
@@ -20,8 +21,6 @@ Depends:
  pycurl-wrapper (>= 1.2),
  pycurl-wrapper (<< 2.0),
  gpg (>= 2.2.12),
- ${python:Depends},
- python-crypto,
  python-simplejson,
  tklbam-duplicity (>=  0.6.18),
  tklbam-python-boto (>= 2.3.0-2turnkey),
