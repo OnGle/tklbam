@@ -9,12 +9,8 @@ tmp=debian/tmp
 %:
 	dh $@
 
-all:
-
 override_dh_auto_build:
-	mkdir -p $(tmp) $(deproot)
-	DEPROOT=$(deproot) ./duct-tape-deps.sh
-	rm -rf $(tmp)
+	./duct-tape-deps.sh
 
-override_dh_auto_install:
-	dh_auto_install -- prefix=debian/$(DEB_SOURCE)/usr
+override_dh_shlibdeps:
+override_dh_makeshlibs:
