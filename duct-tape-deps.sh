@@ -1,34 +1,45 @@
-#!/bin/bash
+#!/bin/bash -eu
 
-pypy_root='pypy2.7-v7.3.20-linux64'
-pypy_archive="$pypy_root.tar.bz2"
+BASE_DIR="$PWD"
+DEPROOT="$BASE_DIR/lib/deps"
+TMP="$BASE_DIR/debian/tmp/tklbam-deps"
+HOST_ARCH=$(dpkg --print-architecture)
 
-DEPROOT="$(pwd)/debian/tmp/dh-*/deproot"
+export LD_LIBRARY_PATH="$DEPROOT/bin"
 
-mkdir -p $DEPROOT /usr/lib/tklbam/deps
+mkdir -p "$DEPROOT" "$TMP"
 
-cd debian/tmp
+pypy_arch=
+case $HOST_ARCH in
+    amd64)
+        pypy_arch="linux64";;
+    arm64)
+        pypy_arch="aarch64";;
+    *)
+        echo "ERROR: $HOST_ARCH unsupported" >&2
+        exit 1;;
+esac
+
+read -r pypy_checksum pypy_archive <<< "$( \
+    sed -n "/pypy2\.7.*$pypy_arch/{s|<*.*>||;p;q;}" "checksums.txt" \
+)"
+
+cd "$TMP" || exit 1
 
 wget "https://downloads.python.org/pypy/$pypy_archive"
-tar -xvf "$pypy_archive"
 
-pypy_root="$(pwd)/$pypy_root"
+if [[ $(sha256sum "$pypy_archive") != "$pypy_checksum"*"$pypy_archive" ]]; then
+    echo "ERROR: $pypy_archive checksum mismatch" >&2
+    exit 1
+fi
 
-rm "$pypy_archive"
+echo "unpacking $pypy_archive..."
+tar -xf "$pypy_archive" --transform "s|^${pypy_archive%.tar.bz2}/||" -C "$DEPROOT"
 
-git clone https://github.com/turnkeylinux/python-crypto
-cd python-crypto
-LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$pypy_root/bin" "$pypy_root/bin/python2" setup.py build
-
-cd ..
-git clone https://github.com/turnkeylinux/python-pycurl
-cd python-pycurl
-LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$pypy_root/bin" "$pypy_root/bin/python2" setup.py build
-
-cd ..
-mv pypy*/* $DEPROOT
-mv python-crypto/build/lib*/* $DEPROOT/site-packages
-rm -rf python-crypto
-mv python-pycurl/build/lib*/* $DEPROOT/site-packages
-rm -rf python-pycurl
-cd ..
+for pkg in python-crypto python-pycurl; do
+    git clone https://github.com/turnkeylinux/$pkg
+    cd $pkg || exit 1
+    "$LD_LIBRARY_PATH/pypy" setup.py build
+    cd "$TMP" || exit 1
+    mv $pkg/build/lib*/* $DEPROOT/site-packages
+done

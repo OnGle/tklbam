@@ -8,11 +8,11 @@ Build-Depends:
  libcurl4-openssl-dev,
  wget,
  tar,
- libssl-dev
+ libssl-dev,
 Standards-Version: 4.0.0
 
 Package: tklbam
-Architecture: all
+Architecture: any
 Depends:
  ca-certificates,
  ${misc:Depends},
