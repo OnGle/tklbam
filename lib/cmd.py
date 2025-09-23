@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/lib/tklbam/deps/bin/python2
 #
 # Copyright (c) 2010-2012 Liraz Siri <liraz@turnkeylinux.org>
 #
@@ -21,6 +21,13 @@ Environment variables:
                         Default: $TKLBAM_REGISTRY
 
 """
+import sys
+sys.path = [
+    '',
+    '/usr/lib/tklbam/deps/lib_pypy',
+    '/usr/lib/tklbam/deps/lib-python/2.7',
+    '/usr/lib/tklbam/deps/site-packages',
+]
 from os.path import *
 from cliwrapper import CliWrapper
 
