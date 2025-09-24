@@ -36,10 +36,17 @@ fi
 echo "unpacking $pypy_archive..."
 tar -xf "$pypy_archive" --transform "s|^${pypy_archive%.tar.bz2}/||" -C "$DEPROOT"
 
-for pkg in python-crypto python-pycurl; do
+for pkg in python-crypto python-pycurl tklbam-duplicity turnkey-pylib tklbam-python-boto; do
     git clone https://github.com/turnkeylinux/$pkg
     cd $pkg || exit 1
     "$LD_LIBRARY_PATH/pypy" setup.py build
     cd "$TMP" || exit 1
     mv $pkg/build/lib*/* $DEPROOT/site-packages
 done
+
+pkg=pycurl-wrapper
+git clone -b python2 https://github.com/turnkeylinux/$pkg
+cd $pkg || exit 1
+"$LD_LIBRARY_PATH/pypy" setup.py build
+cd "$TMP" || exit 1
+mv $pkg/build/lib*/* $DEPROOT/site-packages

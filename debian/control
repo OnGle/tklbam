@@ -8,6 +8,7 @@ Build-Depends:
  libcurl4-openssl-dev,
  wget,
  tar,
+ librsync-dev (>= 0.9.6),
  libssl-dev,
 Standards-Version: 4.0.0
 
@@ -18,12 +19,6 @@ Depends:
  ${misc:Depends},
  gnupg,
  ntpdate,
- pycurl-wrapper (>= 1.2),
- pycurl-wrapper (<< 2.0),
  gpg (>= 2.2.12),
- python-simplejson,
- tklbam-duplicity (>=  0.6.18),
- tklbam-python-boto (>= 2.3.0-2turnkey),
- tklbam-squid (>= 2.7.STABLE9-2.1turnkey+25),
- turnkey-pylib (>= 0.5),
+ tklbam-squid
 Description: TurnKey GNU/Linux Backup and Migration agent

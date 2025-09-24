@@ -24,6 +24,7 @@ Environment variables:
 import sys
 sys.path = [
     '',
+    '/usr/lib/tklbam',
     '/usr/lib/tklbam/deps/lib_pypy',
     '/usr/lib/tklbam/deps/lib-python/2.7',
     '/usr/lib/tklbam/deps/site-packages',
