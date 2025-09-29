@@ -1,12 +1,17 @@
-contrib/example-conf                /etc/tklbam/conf
-contrib/example-overrides           /etc/tklbam/overrides
-contrib/fixclock-hook               /etc/tklbam/hooks.d/fixclock
-contrib/maria-db-changes-hook       /etc/tklbam/hooks.d/maria-db-changes
-contrib/cron.sh                     /etc/cron.daily/tklbam-backup
+#!/usr/bin/dh-exec
 
-contrib/example-hook                /etc/tklbam/hooks.d/example
-contrib/example-hook-pre-backup     /etc/tklbam/hooks.d/example-pre-backup
-contrib/example-hook-post-restore   /etc/tklbam/hooks.d/example-post-restore
-contrib/ez-apt-install.sh           /usr/share/tklbam/contrib/ez-apt-install.sh
+# rename files
+contrib/example-conf                => /etc/tklbam/conf
+contrib/example-overrides           => /etc/tklbam/overrides
+contrib/fixclock-hook               => /etc/tklbam/hooks.d/fixclock
+contrib/maria-db-changes-hook       => /etc/tklbam/hooks.d/maria-db-changes
+contrib/cron.sh                     => /etc/cron.daily/tklbam-backup
 
+contrib/example-hook                => /etc/tklbam/hooks.d/example
+contrib/example-hook-pre-backup     => /etc/tklbam/hooks.d/example-pre-backup
+contrib/example-hook-post-restore   => /etc/tklbam/hooks.d/example-post-restore
+contrib/ez-apt-install.sh           => /usr/share/tklbam/contrib/ez-apt-install.sh
+
+# move files/dirs
 lib/*                               /usr/lib/tklbam/
+
